@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>300 Days - Immersive Experience</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bright-yellow: #ffea00;
+            --rich-gold: #ffd700;
+            --neon-pink: #ff4d94;
+            --glass-bg-ultra-light: rgba(255, 255, 255, 0.15);
+            --glass-border-light: rgba(255, 255, 255, 0.4);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(180deg, #87CEEB 0%, #87CEEB 55%, #B0E0E6 75%, #FFD700 90%, #FFEA00 100%);
+            color: #1a2a3a; font-family: 'Montserrat', sans-serif;
+            overflow: hidden; height: 100vh;
+        }
+
+        /* 登录层 */
+        #login-screen {
+            position: fixed; inset: 0; z-index: 9999;
+            background: rgba(0,0,0,0.02); backdrop-filter: blur(8px);
+            display: flex; justify-content: center; align-items: center; transition: 1s;
+        }
+        .login-card {
+            padding: 45px 40px; width: 420px; text-align: center;
+            background: var(--glass-bg-ultra-light);
+            backdrop-filter: blur(20px) saturate(120%); border: 1px solid var(--glass-border-light);
+            border-radius: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+        }
+        input {
+            width: 100%; padding: 16px; margin: 12px 0; border-radius: 18px;
+            border: none; background: rgba(255,255,255,0.4); text-align: center; outline: none; font-weight: 600;
+        }
+        .unlock-btn {
+            width: 100%; padding: 16px; border-radius: 50px; border: none;
+            background: linear-gradient(135deg, #87CEEB, var(--neon-pink));
+            color: white; font-weight: bold; cursor: pointer; margin-top: 25px; transition: 0.3s;
+        }
+
+        /* 主内容 */
+        #main-content { display: none; opacity: 0; height: 100%; width: 100%; position: relative; }
+        #heart-canvas { position: absolute; inset: 0; z-index: 1; }
+        
+        .center-info-container {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            z-index: 10; text-align: center; pointer-events: none; padding: 40px 70px;
+            background: var(--glass-bg-ultra-light); backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border-light); border-radius: 40px;
+        }
+        .days-num {
+            font-family: 'Playfair Display', serif; font-size: 9rem; font-weight: 900;
+            background: linear-gradient(135deg, #fff 0%, var(--bright-yellow) 50%, var(--neon-pink) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        /* 照片与星环 */
+        .photo-card {
+            position: absolute; width: 240px; height: 320px;
+            background: #fff; padding: 8px; border-radius: 16px;
+            z-index: 20; cursor: pointer; transition: 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .photo-card::before {
+            content: ''; position: absolute; z-index: -1;
+            top: -25%; left: -25%; width: 150%; height: 150%; border-radius: 50%;
+            background: conic-gradient(from 0deg, transparent 0%, rgba(255,215,0,0.1) 10%, var(--rich-gold) 30%, transparent 50%, var(--neon-pink) 70%, rgba(255,77,148,0.1) 90%, transparent 100%);
+            filter: blur(15px); opacity: 0.7; animation: starRingRotate 8s linear infinite;
+        }
+        @keyframes starRingRotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        
+        .img-container { width: 100%; height: 100%; border-radius: 12px; overflow: hidden; }
+        .photo-card img { width: 100%; height: 100%; object-fit: cover; }
+        .photo-card:hover { transform: scale(1.12) translateY(-20px) !important; }
+        .photo-card:hover::before { opacity: 1; animation-duration: 4s; }
+
+        .tl { top: 8%; left: 8%; transform: rotate(-6deg); }
+        .tr { top: 8%; right: 8%; transform: rotate(6deg); }
+        .bl { bottom: 8%; left: 8%; transform: rotate(4deg); }
+        .br { bottom: 8%; right: 8%; transform: rotate(-4deg); }
+    </style>
+</head>
+<body onmousedown="handleInitialInteraction()" ontouchstart="handleInitialInteraction()">
+
+    <audio id="audio-login" loop preload="auto">
+        <source src="C:\Users\rjj\Downloads\萤火之森-CMJ#2sQGHA.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="audio-main" loop preload="auto">
+        <source src="C:\Users\rjj\Downloads\方大同 - 特别的人.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="login-screen">
+        <div class="login-card">
+            <h2>300 DAYS LOVE</h2>
+            <input type="text" id="nameIn" placeholder="你的名字" onclick="handleInitialInteraction()">
+            <input type="password" id="dateIn" placeholder="密码 (生日)" onclick="handleInitialInteraction()">
+            <button class="unlock-btn" onclick="unlock()">开启纯净天际</button>
+        </div>
+    </div>
+
+    <div id="main-content">
+        <canvas id="heart-canvas"></canvas>
+        <div class="center-info-container" id="centerInfo">
+            <div class="days-num">300</div>
+            <p style="letter-spacing:8px; font-weight:600; color:#004a7c;">DAYS OF OUR JOURNEY</p>
+        </div>
+
+        <div class="photo-card tl"><div class="img-container"><img src="G:\我与右右\微信图片_2026-02-04_203404_000.jpg"></div></div>
+        <div class="photo-card tr"><div class="img-container"><img src="G:\我与右右\微信图片_20251005220602_23553_13.jpg"></div></div>
+        <div class="photo-card bl"><div class="img-container"><img src="G:\我与右右\微信图片_20251007165603_23648_13.jpg"></div></div>
+        <div class="photo-card br"><div class="img-container"><img src="G:\我与右右\微信图片_20260204203517_11_85.jpg"></div></div>
+    </div>
+
+    <script>
+        const CONFIG = { name: "宝宝", date: "0520" };
+        const aLogin = document.getElementById('audio-login');
+        const aMain = document.getElementById('audio-main');
+        let hasInteracted = false;
+
+        // 只要用户在页面发生任何点击/触摸，音频立即就绪并播放
+        function handleInitialInteraction() {
+            if (!hasInteracted) {
+                aLogin.play().catch(e => console.log("等待交互..."));
+                hasInteracted = true;
+            }
+        }
+
+        function unlock() {
+            const n = document.getElementById('nameIn').value;
+            const d = document.getElementById('dateIn').value;
+            if(n === CONFIG.name && d === CONFIG.date) {
+                // 切换音频
+                aLogin.pause();
+                aMain.currentTime = 0;
+                aMain.play();
+
+                document.getElementById('login-screen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('login-screen').style.display = 'none';
+                    document.getElementById('main-content').style.display = 'block';
+                    document.getElementById('main-content').style.opacity = '1';
+                    initHeart();
+                    loop();
+                }, 800);
+            } else {
+                alert("暗号不对哦~");
+            }
+        }
+
+        // --- Canvas 核心逻辑 ---
+        const canvas = document.getElementById('heart-canvas');
+        const ctx = canvas.getContext('2d');
+        let fireworks = [], eternalParticles = [], heartPoints = [], progress = 0, isExploded = false;
+
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize); resize();
+
+        class Particle {
+            constructor(x, y, color, speed) {
+                this.x = x; this.y = y; this.alpha = 1; this.color = color;
+                const angle = Math.random() * Math.PI * 2;
+                const s = Math.random() * speed + 1;
+                this.vx = Math.cos(angle) * s; this.vy = Math.sin(angle) * s;
+                this.decay = Math.random() * 0.02 + 0.01;
+            }
+            update() { this.x += this.vx; this.y += this.vy; this.vy += 0.05; this.alpha -= this.decay; }
+            draw() { ctx.globalAlpha = this.alpha; ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x, this.y, 2, 0, Math.PI*2); ctx.fill(); }
+        }
+
+        class EternalParticle {
+            constructor(x, y) {
+                this.originX = x; this.originY = y;
+                this.color = Math.random() > 0.5 ? '#ff4d94' : '#ffd700';
+                this.size = Math.random() * 2 + 1; this.offset = Math.random() * Math.PI * 2;
+            }
+            draw() {
+                const br = Math.sin(Date.now() * 0.002 + this.offset) * 5;
+                ctx.globalAlpha = 0.8; ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.originX + (this.originX - canvas.width/2)/20 * br, this.originY + (this.originY - canvas.height/2.2)/20 * br, this.size, 0, Math.PI*2);
+                ctx.fill();
+            }
+        }
+
+        function initHeart() {
+            for (let t = -Math.PI; t <= Math.PI; t += 0.02) {
+                const x = 16 * Math.pow(Math.sin(t), 3);
+                const y = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+                heartPoints.push({ x: x * 15 + canvas.width/2, y: y * 15 + canvas.height/2.2 });
+            }
+        }
+
+        function loop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.globalCompositeOperation = 'lighter';
+            if (progress < 1) {
+                progress += 0.005;
+                const limit = Math.floor(heartPoints.length * progress / 2);
+                const p1 = heartPoints[limit]; const p2 = heartPoints[heartPoints.length - 1 - limit];
+                ctx.shadowBlur = 20; ctx.shadowColor = '#ffd700'; ctx.fillStyle = '#fff';
+                ctx.beginPath(); ctx.arc(p1.x, p1.y, 6, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(p2.x, p2.y, 6, 0, Math.PI*2); ctx.fill();
+                ctx.shadowBlur = 0;
+            } else if (!isExploded) {
+                const endP = heartPoints[Math.floor(heartPoints.length/2)];
+                for(let i=0; i<200; i++) fireworks.push(new Particle(endP.x, endP.y, '#ffd700', 8));
+                for(let i=0; i<200; i++) fireworks.push(new Particle(endP.x, endP.y, '#ff4d94', 6));
+                heartPoints.forEach(p => { for(let i=0; i<3; i++) eternalParticles.push(new EternalParticle(p.x, p.y)); });
+                isExploded = true; document.getElementById('centerInfo').style.opacity = 1;
+            }
+            fireworks.forEach((p, i) => { p.update(); p.draw(); if(p.alpha <= 0) fireworks.splice(i, 1); });
+            if(isExploded) eternalParticles.forEach(p => p.draw());
+            requestAnimationFrame(loop);
+        }
+    </script>
+</body>
+</html>
